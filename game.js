@@ -1,44 +1,21 @@
 const question = document.getElementById("question");
 const choices = Array.from(document.getElementsByClassName("choice-text"))
-
+const progressText = document.getElementById("progressText");
+const scoreText = document.getElementById("score");
+const progressBarFull = document.getElementById("progressBarFull")
 let currentQuestion = {};
 let acceptingAnswers = true;
 let score = 0;
 let questionCounter = 0;
 let availableQuestion = [];
-let questions=[ 
-{
-question:"Evaluate 3*9^(1/2)",
-choice1: "5",
-choice2: "9",
-choice3: "7.5",
-choice4: "18",
-answer: 2
-},
-{
-question:"what is the area of a circle of radius r, and diameter d?",
-choice1: "pi*(d^2)/4",
-choice2: "2*(pi/2)*r^2",
-choice3: "pi*r^2",
-choice4: "All the above",
-answer: 2
-},
-{
-question:"Find the diagonal length of a square of breadth 1 unit.",
-choice1: "2",
-choice2: "4",
-choice3: "2^(1/2)",
-choice4: "3",
-answer:3
-},
-{
-question:"Evaluate 3-2*4+7",
-choice1: "11",
-choice2: "2",
-choice3: "6",
-choice4: "9",
-answer:2}
-];
+let questions=[];
+fetch("questions.json"). then( res => {
+    return res.json();
+}).then(loadedQuestions => {
+    questions = loadedQuestions;
+    startGame();
+});
+
  
 const CORRECT_BONUS = 10;
 const MAX_QUESTIONS = 3;
@@ -52,9 +29,16 @@ startGame = ()=>{
 
 getNewQuestion=function(){
     if(availableQuestions === 0 || questionCounter===MAX_QUESTIONS){
+        localStorage.setItem("mostRecentScore", score) 
         return window.location.assign("/end.html");
+        console.log(score)
     }
+
     questionCounter++;
+    progressText.innerText= `Question ${questionCounter} / ${MAX_QUESTIONS}`;
+    let progressPercent=(questionCounter/MAX_QUESTIONS)*100;
+    progressBarFull.style.width = `${progressPercent}%`
+   
     const questionIndex = Math.floor(Math.random() * availableQuestions.length);
     currentQuestion=availableQuestions[questionIndex];
     question.innerText = currentQuestion.question;
@@ -77,6 +61,10 @@ choices.forEach(choice => {
         let classToApply = "incorrect";
         if (selectedAnswer==currentQuestion.answer){
             classToApply="correct";
+            score = score + CORRECT_BONUS;
+           
+            scoreText.innerText = score;
+            
         }
         selectedChoice.parentElement.classList.add(classToApply);
         setTimeout(()=>{
@@ -87,4 +75,7 @@ choices.forEach(choice => {
 
     })
 })
- startGame();
+incrementScore = num => {
+    
+};
+
